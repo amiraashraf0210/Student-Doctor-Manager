@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manager Panel</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+  <style>
+    body {
+      background-color: #f0f2f5;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .card {
+      border: none;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+    }
+
+    .nav-tabs {
+      border: none;
+      margin-bottom: 20px;
+    }
+
+    .nav-tabs .nav-link {
+      border: none;
+      color: #666;
+      padding: 10px 20px;
+      border-radius: 5px;
+      margin-right: 10px;
+      transition: all 0.3s;
+    }
+
+    .nav-tabs .nav-link:hover {
+      background-color: #f8f9fa;
+    }
+
+    .nav-tabs .nav-link.active {
+      background-color: #007bff;
+      color: white;
+    }
+
+    .form-control {
+      border-radius: 5px;
+      padding: 10px;
+      border: 1px solid #ddd;
+    }
+
+    .search-input {
+      height: 38px !important;
+      padding: 5px 10px;
+    }
+
+    .refresh-btn {
+      height: 38px !important;
+      width: 38px !important;
+      padding: 0 !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      background-color: #0d6efd !important;
+      border: none !important;
+      color: white !important;
+      transition: all 0.3s ease;
+    }
+
+    .refresh-btn:hover {
+      background-color: #0b5ed7 !important;
+    }
+
+    .refresh-btn i {
+      font-size: 16px !important;
+      margin: 0 !important;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border-radius: 5px;
+      transition: all 0.3s;
+    }
+
+    .list-group-item {
+      border: none;
+      margin-bottom: 10px;
+      border-radius: 5px !important;
+      background-color: #fff;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 5px;
+    }
+
+    .btn-sm {
+      padding: 5px 10px;
+    }
+
+    .toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 1000;
+    }
+  </style>
+</head>
+
+<body class="p-4">
+
+  <div class="container">
+    <h1 class="text-center mb-5">Student & Doctor Manager</h1>
+
+    <div class="d-flex justify-content-end mb-4">
+      <button class="btn btn-info" onclick="fetchAllData()">
+        <i class="fas fa-database me-2"></i>Fetch All Data
+      </button>
+    </div>
+
+    <div id="allDataView" style="display: none;">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3>All Data</h3>
+        <button class="btn btn-secondary" onclick="showForms()">
+          <i class="fas fa-arrow-left me-2"></i>Back to Forms
+        </button>
+      </div>
+      <div class="row">
+        <div class="col-md-6">
+          <div class="card p-4">
+            <h4 class="mb-3"><i class="fas fa-user-graduate me-2"></i>Students</h4>
+            <ul class="list-group" id="allStudentsList"></ul>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card p-4">
+            <h4 class="mb-3"><i class="fas fa-user-md me-2"></i>Doctors</h4>
+            <ul class="list-group" id="allDoctorsList"></ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="formsView">
+      <ul class="nav nav-tabs" id="myTab" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button class="nav-link active" id="student-tab" data-bs-toggle="tab" data-bs-target="#student" type="button">
+            <i class="fas fa-user-graduate me-2"></i>Students
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="doctor-tab" data-bs-toggle="tab" data-bs-target="#doctor" type="button">
+            <i class="fas fa-user-md me-2"></i>Doctors
+          </button>
+        </li>
+      </ul>
+
+      <div class="tab-content">
+        <!-- STUDENTS -->
+        <div class="tab-pane fade show active" id="student">
+          <div class="card p-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <h4><i class="fas fa-plus-circle me-2"></i>Add Student</h4>
+              <button class="btn btn-info" onclick="addHardcodedStudent()">
+                <i class="fas fa-magic me-2"></i>Add Hardcoded Student
+              </button>
+            </div>
+            <form id="studentForm" class="row g-3">
+              <div class="col-md-4">
+                <input class="form-control" placeholder="Name" id="name" required />
+              </div>
+              <div class="col-md-2">
+                <input class="form-control" type="number" placeholder="Age" id="age" required />
+              </div>
+              <div class="col-md-2">
+                <input class="form-control" type="number" placeholder="Level" id="level" required />
+              </div>
+              <div class="col-md-4">
+                <input class="form-control" placeholder="Address" id="address" required />
+              </div>
+              <div class="col-12">
+                <button class="btn btn-success w-100">
+                  <i class="fas fa-plus me-2"></i>Add Student
+                </button>
+              </div>
+            </form>
+            <hr />
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h4 class="mb-0"><i class="fas fa-list me-2"></i>Students List</h4>
+              <div class="d-flex gap-2 align-items-center">
+                <input type="text" class="form-control search-input" id="studentSearch" placeholder="Search students..."
+                  onkeyup="searchStudents()">
+                <button class="btn refresh-btn" onclick="refreshStudents()">
+                  <i class="fas fa-sync-alt"></i>
+                </button>
+              </div>
+            </div>
+            <ul class="list-group" id="studentList"></ul>
+          </div>
+        </div>
+
+        <!-- DOCTORS -->
+        <div class="tab-pane fade" id="doctor">
+          <div class="card p-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <h4><i class="fas fa-plus-circle me-2"></i>Add Doctor</h4>
+            </div>
+            <form id="doctorForm" class="row g-3">
+              <div class="col-md-4">
+                <input class="form-control" placeholder="Name" id="docName" required />
+              </div>
+              <div class="col-md-2">
+                <input class="form-control" type="number" placeholder="Age" id="docAge" required />
+              </div>
+              <div class="col-md-6">
+                <input class="form-control" placeholder="Phone" id="docPhone" required />
+              </div>
+              <div class="col-12">
+                <button class="btn btn-success w-100">
+                  <i class="fas fa-plus me-2"></i>Add Doctor
+                </button>
+              </div>
+            </form>
+            <hr />
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h4 class="mb-0"><i class="fas fa-list me-2"></i>Doctors List</h4>
+              <div class="d-flex gap-2 align-items-center">
+                <input type="text" class="form-control search-input" id="doctorSearch" placeholder="Search doctors..."
+                  onkeyup="searchDoctors()">
+                <button class="btn refresh-btn" onclick="refreshDoctors()">
+                  <i class="fas fa-sync-alt"></i>
+                </button>
+              </div>
+            </div>
+            <ul class="list-group" id="doctorList"></ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast for notifications -->
+  <div class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive"
+    aria-atomic="true">
+    <div class="d-flex">
+      <div class="toast-body"></div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+        aria-label="Close"></button>
+    </div>
+  </div>
+
+  <!-- Edit Student Modal -->
+  <div class="modal fade" id="editStudentModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Edit Student</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form id="editStudentForm">
+            <div class="mb-3">
+              <label class="form-label">Name</label>
+              <input type="text" class="form-control" id="editStudentName" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Age</label>
+              <input type="number" class="form-control" id="editStudentAge" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Level</label>
+              <input type="number" class="form-control" id="editStudentLevel" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Address</label>
+              <input type="text" class="form-control" id="editStudentAddress" required>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary" onclick="submitStudentEdit()">Save Changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Doctor Modal -->
+  <div class="modal fade" id="editDoctorModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Edit Doctor</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form id="editDoctorForm">
+            <div class="mb-3">
+              <label class="form-label">Name</label>
+              <input type="text" class="form-control" id="editDoctorName" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Age</label>
+              <input type="number" class="form-control" id="editDoctorAge" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Phone</label>
+              <input type="text" class="form-control" id="editDoctorPhone" required>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary" onclick="submitDoctorEdit()">Save Changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const api = "http://localhost:3000";
+    let currentEditName = '';
+
+    // Initialize toast and modals
+    let toast, editStudentModal, editDoctorModal;
+    document.addEventListener('DOMContentLoaded', function () {
+      toast = new bootstrap.Toast(document.querySelector('.toast'));
+      editStudentModal = new bootstrap.Modal(document.getElementById('editStudentModal'));
+      editDoctorModal = new bootstrap.Modal(document.getElementById('editDoctorModal'));
+      loadFromLocalStorage();
+    });
+
+    // Load data from localStorage
+    function loadFromLocalStorage() {
+      const savedStudents = localStorage.getItem('students');
+      const savedDoctors = localStorage.getItem('doctors');
+
+      if (savedStudents) {
+        updateStudentList(JSON.parse(savedStudents));
+      }
+      if (savedDoctors) {
+        updateDoctorList(JSON.parse(savedDoctors));
+      }
+    }
+
+    // Save data to localStorage
+    function saveToLocalStorage(students, doctors) {
+      localStorage.setItem('students', JSON.stringify(students));
+      localStorage.setItem('doctors', JSON.stringify(doctors));
+    }
+
+    // Update fetchStudents to save to localStorage
+    async function fetchStudents() {
+      try {
+        console.log("Fetching students...");
+        const res = await fetch(`${api}/fetch-students`);
+        console.log("Response received:", res);
+        const data = await res.json();
+        console.log("Students data:", data);
+        updateStudentList(data);
+        saveToLocalStorage(data, JSON.parse(localStorage.getItem('doctors') || '[]'));
+      } catch (error) {
+        console.error("Error fetching students:", error);
+        showToast("Error fetching students", true);
+      }
+    }
+
+    // Update fetchDoctors to save to localStorage
+    async function fetchDoctors() {
+      try {
+        console.log("Fetching doctors...");
+        const res = await fetch(`${api}/fetch-doctors`);
+        console.log("Response received:", res);
+        const data = await res.json();
+        console.log("Doctors data:", data);
+        updateDoctorList(data);
+        saveToLocalStorage(JSON.parse(localStorage.getItem('students') || '[]'), data);
+      } catch (error) {
+        console.error("Error fetching doctors:", error);
+        showToast("Error fetching doctors", true);
+      }
+    }
+
+    // Update fetchAllData function
+    async function fetchAllData() {
+      try {
+        const response = await fetch(`${api}/fetch-all`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        console.log("All data:", data);
+
+        // Update both lists
+        updateAllStudentsList(data.students);
+        updateAllDoctorsList(data.doctors);
+
+        // Show all data view and hide forms
+        document.getElementById('allDataView').style.display = 'block';
+        document.getElementById('formsView').style.display = 'none';
+
+        saveToLocalStorage(data.students, data.doctors);
+        showToast("Data fetched successfully!");
+      } catch (error) {
+        console.error("Error fetching all data:", error);
+        showToast("Error fetching all data", true);
+      }
+    }
+
+    // Add function to show forms
+    function showForms() {
+      document.getElementById('allDataView').style.display = 'none';
+      document.getElementById('formsView').style.display = 'block';
+      showToast("Returned to forms view");
+    }
+
+    // Add functions to update all data lists
+    function updateAllStudentsList(students) {
+      const allStudentsList = document.getElementById('allStudentsList');
+      if (!students || students.length === 0) {
+        allStudentsList.innerHTML = '<li class="list-group-item text-center text-muted">No students found</li>';
+        return;
+      }
+      allStudentsList.innerHTML = students.map(student => `
+        <li class="list-group-item">
+          <div>
+            <strong>${student.name}</strong>
+            <span class="text-muted ms-2">(Level ${student.level})</span>
+            <br>
+            <small class="text-muted">${student.address}</small>
+          </div>
+        </li>
+      `).join('');
+    }
+
+    function updateAllDoctorsList(doctors) {
+      const allDoctorsList = document.getElementById('allDoctorsList');
+      if (!doctors || doctors.length === 0) {
+        allDoctorsList.innerHTML = '<li class="list-group-item text-center text-muted">No doctors found</li>';
+        return;
+      }
+      allDoctorsList.innerHTML = doctors.map(doctor => `
+        <li class="list-group-item">
+          <div>
+            <strong>${doctor.name}</strong>
+            <br>
+            <small class="text-muted">Phone: ${doctor.phone}</small>
+          </div>
+        </li>
+      `).join('');
+    }
+
+    function showToast(message, isError = false) {
+      const toastElement = document.querySelector('.toast');
+      toastElement.classList.remove('bg-success', 'bg-danger');
+      toastElement.classList.add(isError ? 'bg-danger' : 'bg-success');
+      document.querySelector('.toast-body').textContent = message;
+      toast.show();
+    }
+
+    // Add Student
+    document.getElementById("studentForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      try {
+        const student = {
+          name: document.getElementById("name").value,
+          age: document.getElementById("age").value,
+          level: document.getElementById("level").value,
+          address: document.getElementById("address").value
+        };
+        const response = await fetch(`${api}/add-student`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(student)
+        });
+        if (response.ok) {
+          showToast("Student added successfully!");
+          e.target.reset();
+          fetchStudents();
+        } else {
+          const error = await response.json();
+          showToast(error.error || "Error adding student", true);
+        }
+      } catch (error) {
+        showToast("Error adding student", true);
+      }
+    });
+
+    // Add Hardcoded Student
+    async function addHardcodedStudent() {
+      try {
+        const response = await fetch(`${api}/add-hardcoded-student`);
+        if (response.ok) {
+          showToast("Hardcoded student added successfully!");
+          fetchStudents();
+        } else {
+          const errorText = await response.text();
+          showToast(`Error: ${errorText}`, true);
+        }
+      } catch (error) {
+        showToast("Error adding hardcoded student", true);
+      }
+    }
+
+    // Add Doctor
+    document.getElementById("doctorForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      try {
+        const name = document.getElementById("docName").value;
+        const age = document.getElementById("docAge").value;
+        const phone = document.getElementById("docPhone").value;
+        const response = await fetch(`${api}/add-doctor?name=${encodeURIComponent(name)}&age=${age}&phone=${encodeURIComponent(phone)}`);
+        if (response.ok) {
+          showToast("Doctor added successfully!");
+          e.target.reset();
+          fetchDoctors();
+        } else {
+          const error = await response.json();
+          showToast(error.error || "Error adding doctor", true);
+        }
+      } catch (error) {
+        showToast("Error adding doctor", true);
+      }
+    });
+
+    // Helper function to update student list
+    function updateStudentList(students) {
+      studentList.innerHTML = "";
+      students.forEach(s => {
+        const li = document.createElement("li");
+        li.className = "list-group-item d-flex justify-content-between align-items-center";
+        li.innerHTML = `
+          <div>
+            <strong>${s.name}</strong>
+            <span class="text-muted ms-2">(Level ${s.level})</span>
+            <br>
+            <small class="text-muted">${s.address}</small>
+          </div>
+          <div class="action-buttons">
+            <button class="btn btn-sm btn-warning" onclick="editStudent('${s.name}')">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="btn btn-sm btn-danger" onclick="deleteStudent('${s.name}')">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>`;
+        studentList.appendChild(li);
+      });
+    }
+
+    // Helper function to update doctor list
+    function updateDoctorList(doctors) {
+      doctorList.innerHTML = "";
+      doctors.forEach(d => {
+        const li = document.createElement("li");
+        li.className = "list-group-item d-flex justify-content-between align-items-center";
+        li.innerHTML = `
+          <div>
+            <strong>${d.name}</strong>
+            <br>
+            <small class="text-muted">Phone: ${d.phone}</small>
+          </div>
+          <div class="action-buttons">
+            <button class="btn btn-sm btn-warning" onclick="editDoctor('${d.name}')">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="btn btn-sm btn-danger" onclick="deleteDoctor('${d.name}')">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>`;
+        doctorList.appendChild(li);
+      });
+    }
+
+    // Delete Student
+    async function deleteStudent(name) {
+      if (confirm(`Are you sure you want to delete ${name}?`)) {
+        try {
+          const response = await fetch(`${api}/delete-student?name=${name}`, {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" }
+          });
+          if (response.ok) {
+            showToast("Student deleted successfully!");
+            fetchStudents();
+          } else {
+            const error = await response.json();
+            showToast(error.error || "Error deleting student", true);
+          }
+        } catch (error) {
+          showToast("Error deleting student", true);
+        }
+      }
+    }
+
+    // Delete Doctor
+    async function deleteDoctor(name) {
+      if (confirm(`Are you sure you want to delete ${name}?`)) {
+        try {
+          const response = await fetch(`${api}/delete-doctor?name=${encodeURIComponent(name)}`, {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" }
+          });
+          if (response.ok) {
+            showToast("Doctor deleted successfully!");
+            fetchDoctors();
+          } else {
+            const error = await response.json();
+            showToast(error.error || "Error deleting doctor", true);
+          }
+        } catch (error) {
+          showToast("Error deleting doctor", true);
+        }
+      }
+    }
+
+    // Add search functions
+    function searchStudents() {
+      const searchTerm = document.getElementById('studentSearch').value.toLowerCase();
+      const students = JSON.parse(localStorage.getItem('students') || '[]');
+      const filteredStudents = students.filter(student =>
+        student.name.toLowerCase().includes(searchTerm) ||
+        student.level.toString().includes(searchTerm) ||
+        student.address.toLowerCase().includes(searchTerm)
+      );
+      updateStudentList(filteredStudents);
+    }
+
+    function searchDoctors() {
+      const searchTerm = document.getElementById('doctorSearch').value.toLowerCase();
+      const doctors = JSON.parse(localStorage.getItem('doctors') || '[]');
+      const filteredDoctors = doctors.filter(doctor =>
+        doctor.name.toLowerCase().includes(searchTerm) ||
+        doctor.phone.includes(searchTerm)
+      );
+      updateDoctorList(filteredDoctors);
+    }
+
+    // Update the all data view search
+    function searchAllStudents() {
+      const searchTerm = document.getElementById('allStudentSearch').value.toLowerCase();
+      const students = JSON.parse(localStorage.getItem('students') || '[]');
+      const filteredStudents = students.filter(student =>
+        student.name.toLowerCase().includes(searchTerm) ||
+        student.level.toString().includes(searchTerm) ||
+        student.address.toLowerCase().includes(searchTerm)
+      );
+      updateAllStudentsList(filteredStudents);
+    }
+
+    function searchAllDoctors() {
+      const searchTerm = document.getElementById('allDoctorSearch').value.toLowerCase();
+      const doctors = JSON.parse(localStorage.getItem('doctors') || '[]');
+      const filteredDoctors = doctors.filter(doctor =>
+        doctor.name.toLowerCase().includes(searchTerm) ||
+        doctor.phone.includes(searchTerm)
+      );
+      updateAllDoctorsList(filteredDoctors);
+    }
+
+    // Add refresh functions
+    function refreshStudents() {
+      document.getElementById('studentSearch').value = '';
+      fetchStudents();
+    }
+
+    function refreshDoctors() {
+      document.getElementById('doctorSearch').value = '';
+      fetchDoctors();
+    }
+
+    async function editStudent(name) {
+      currentEditName = name;
+      const students = JSON.parse(localStorage.getItem('students') || '[]');
+      const student = students.find(s => s.name === name);
+      if (student) {
+        document.getElementById('editStudentName').value = student.name;
+        document.getElementById('editStudentAge').value = student.age;
+        document.getElementById('editStudentLevel').value = student.level;
+        document.getElementById('editStudentAddress').value = student.address;
+        editStudentModal.show();
+      }
+    }
+
+    async function submitStudentEdit() {
+      try {
+        const updatedStudent = {
+          name: document.getElementById('editStudentName').value,
+          age: Number(document.getElementById('editStudentAge').value),
+          level: Number(document.getElementById('editStudentLevel').value),
+          address: document.getElementById('editStudentAddress').value
+        };
+        const response = await fetch(`${api}/update-student`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(updatedStudent),
+        });
+        if (response.ok) {
+          showToast("Student updated successfully!");
+          editStudentModal.hide();
+          fetchStudents();
+        } else {
+          const error = await response.json();
+          showToast(error.error || "Error updating student", true);
+        }
+      } catch (error) {
+        showToast("Error updating student", true);
+      }
+    }
+
+    async function editDoctor(name) {
+      currentEditName = name;
+      const doctors = JSON.parse(localStorage.getItem('doctors') || '[]');
+      const doctor = doctors.find(d => d.name === name);
+      if (doctor) {
+        document.getElementById('editDoctorName').value = doctor.name;
+        document.getElementById('editDoctorAge').value = doctor.age;
+        document.getElementById('editDoctorPhone').value = doctor.phone;
+        editDoctorModal.show();
+      }
+    }
+
+    async function submitDoctorEdit() {
+      try {
+        const updatedDoctor = {
+          name: document.getElementById('editDoctorName').value,
+          age: Number(document.getElementById('editDoctorAge').value),
+          phone: document.getElementById('editDoctorPhone').value
+        };
+        const response = await fetch(`${api}/update-doctor-full`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(updatedDoctor),
+        });
+        if (response.ok) {
+          showToast("Doctor updated successfully!");
+          editDoctorModal.hide();
+          fetchDoctors();
+        } else {
+          const error = await response.json();
+          showToast(error.error || "Error updating doctor", true);
+        }
+      } catch (error) {
+        showToast("Error updating doctor", true);
+      }
+    }
+
+    // Initial fetch
+    fetchStudents();
+    fetchDoctors();
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
