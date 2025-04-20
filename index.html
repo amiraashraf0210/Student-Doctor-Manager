@@ -333,29 +333,11 @@
       toast = new bootstrap.Toast(document.querySelector('.toast'));
       editStudentModal = new bootstrap.Modal(document.getElementById('editStudentModal'));
       editDoctorModal = new bootstrap.Modal(document.getElementById('editDoctorModal'));
-      loadFromLocalStorage();
+      fetchStudents();
+      fetchDoctors();
     });
 
-    // Load data from localStorage
-    function loadFromLocalStorage() {
-      const savedStudents = localStorage.getItem('students');
-      const savedDoctors = localStorage.getItem('doctors');
-
-      if (savedStudents) {
-        updateStudentList(JSON.parse(savedStudents));
-      }
-      if (savedDoctors) {
-        updateDoctorList(JSON.parse(savedDoctors));
-      }
-    }
-
-    // Save data to localStorage
-    function saveToLocalStorage(students, doctors) {
-      localStorage.setItem('students', JSON.stringify(students));
-      localStorage.setItem('doctors', JSON.stringify(doctors));
-    }
-
-    // Update fetchStudents to save to localStorage
+    // Update fetchStudents to directly update the list
     async function fetchStudents() {
       try {
         console.log("Fetching students...");
@@ -364,14 +346,13 @@
         const data = await res.json();
         console.log("Students data:", data);
         updateStudentList(data);
-        saveToLocalStorage(data, JSON.parse(localStorage.getItem('doctors') || '[]'));
       } catch (error) {
         console.error("Error fetching students:", error);
         showToast("Error fetching students", true);
       }
     }
 
-    // Update fetchDoctors to save to localStorage
+    // Update fetchDoctors to directly update the list
     async function fetchDoctors() {
       try {
         console.log("Fetching doctors...");
@@ -380,7 +361,6 @@
         const data = await res.json();
         console.log("Doctors data:", data);
         updateDoctorList(data);
-        saveToLocalStorage(JSON.parse(localStorage.getItem('students') || '[]'), data);
       } catch (error) {
         console.error("Error fetching doctors:", error);
         showToast("Error fetching doctors", true);
@@ -405,7 +385,6 @@
         document.getElementById('allDataView').style.display = 'block';
         document.getElementById('formsView').style.display = 'none';
 
-        saveToLocalStorage(data.students, data.doctors);
         showToast("Data fetched successfully!");
       } catch (error) {
         console.error("Error fetching all data:", error);
@@ -620,48 +599,38 @@
       }
     }
 
-    // Add search functions
-    function searchStudents() {
-      const searchTerm = document.getElementById('studentSearch').value.toLowerCase();
-      const students = JSON.parse(localStorage.getItem('students') || '[]');
-      const filteredStudents = students.filter(student =>
-        student.name.toLowerCase().includes(searchTerm) ||
-        student.level.toString().includes(searchTerm) ||
-        student.address.toLowerCase().includes(searchTerm)
-      );
-      updateStudentList(filteredStudents);
+    // Update search functions to fetch fresh data
+    async function searchStudents() {
+      try {
+        const searchTerm = document.getElementById('studentSearch').value.toLowerCase();
+        const response = await fetch(`${api}/fetch-students`);
+        const students = await response.json();
+        const filteredStudents = students.filter(student =>
+          student.name.toLowerCase().includes(searchTerm) ||
+          student.level.toString().includes(searchTerm) ||
+          student.address.toLowerCase().includes(searchTerm)
+        );
+        updateStudentList(filteredStudents);
+      } catch (error) {
+        console.error("Error searching students:", error);
+        showToast("Error searching students", true);
+      }
     }
 
-    function searchDoctors() {
-      const searchTerm = document.getElementById('doctorSearch').value.toLowerCase();
-      const doctors = JSON.parse(localStorage.getItem('doctors') || '[]');
-      const filteredDoctors = doctors.filter(doctor =>
-        doctor.name.toLowerCase().includes(searchTerm) ||
-        doctor.phone.includes(searchTerm)
-      );
-      updateDoctorList(filteredDoctors);
-    }
-
-    // Update the all data view search
-    function searchAllStudents() {
-      const searchTerm = document.getElementById('allStudentSearch').value.toLowerCase();
-      const students = JSON.parse(localStorage.getItem('students') || '[]');
-      const filteredStudents = students.filter(student =>
-        student.name.toLowerCase().includes(searchTerm) ||
-        student.level.toString().includes(searchTerm) ||
-        student.address.toLowerCase().includes(searchTerm)
-      );
-      updateAllStudentsList(filteredStudents);
-    }
-
-    function searchAllDoctors() {
-      const searchTerm = document.getElementById('allDoctorSearch').value.toLowerCase();
-      const doctors = JSON.parse(localStorage.getItem('doctors') || '[]');
-      const filteredDoctors = doctors.filter(doctor =>
-        doctor.name.toLowerCase().includes(searchTerm) ||
-        doctor.phone.includes(searchTerm)
-      );
-      updateAllDoctorsList(filteredDoctors);
+    async function searchDoctors() {
+      try {
+        const searchTerm = document.getElementById('doctorSearch').value.toLowerCase();
+        const response = await fetch(`${api}/fetch-doctors`);
+        const doctors = await response.json();
+        const filteredDoctors = doctors.filter(doctor =>
+          doctor.name.toLowerCase().includes(searchTerm) ||
+          doctor.phone.includes(searchTerm)
+        );
+        updateDoctorList(filteredDoctors);
+      } catch (error) {
+        console.error("Error searching doctors:", error);
+        showToast("Error searching doctors", true);
+      }
     }
 
     // Add refresh functions
@@ -750,10 +719,6 @@
         showToast("Error updating doctor", true);
       }
     }
-
-    // Initial fetch
-    fetchStudents();
-    fetchDoctors();
   </script>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
