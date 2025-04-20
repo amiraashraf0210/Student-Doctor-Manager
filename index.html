@@ -702,13 +702,21 @@
 
     async function editDoctor(name) {
       currentEditName = name;
-      const doctors = JSON.parse(localStorage.getItem('doctors') || '[]');
-      const doctor = doctors.find(d => d.name === name);
-      if (doctor) {
-        document.getElementById('editDoctorName').value = doctor.name;
-        document.getElementById('editDoctorAge').value = doctor.age;
-        document.getElementById('editDoctorPhone').value = doctor.phone;
-        editDoctorModal.show();
+      try {
+        const response = await fetch(`${api}/fetch-doctors`);
+        const doctors = await response.json();
+        const doctor = doctors.find(d => d.name === name);
+        if (doctor) {
+          document.getElementById('editDoctorName').value = doctor.name;
+          document.getElementById('editDoctorAge').value = doctor.age;
+          document.getElementById('editDoctorPhone').value = doctor.phone;
+          editDoctorModal.show();
+        } else {
+          showToast("Doctor not found", true);
+        }
+      } catch (error) {
+        console.error("Error fetching doctor data:", error);
+        showToast("Error fetching doctor data", true);
       }
     }
 
@@ -719,10 +727,10 @@
           age: Number(document.getElementById('editDoctorAge').value),
           phone: document.getElementById('editDoctorPhone').value
         };
-        const response = await fetch(`${api}/update-doctor-full`, {
+        const response = await fetch(`${api}/update-doctor`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(updatedDoctor),
+          body: JSON.stringify(updatedDoctor)
         });
         if (response.ok) {
           showToast("Doctor updated successfully!");

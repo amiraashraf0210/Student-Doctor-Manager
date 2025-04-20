@@ -125,21 +125,24 @@ app.delete("/delete-doctor", async (req, res) => {
 
 app.put("/update-doctor", async (req, res) => {
     try {
-        await db.collection("doctors").updateOne(
-            { name: req.query.name },
+        const result = await db.collection("doctors").updateOne(
+            { name: req.body.name },
             { $set: req.body }
         );
-        res.send("Doctor updated successfully");
+        if (result.matchedCount === 0) {
+            return res.status(404).json({ error: "Doctor not found" });
+        }
+        res.json({ message: "Doctor updated successfully" });
     } catch (error) {
         console.error("Error updating doctor:", error);
-        res.status(500).send("Could not update doctor");
+        res.status(500).json({ error: "Could not update doctor" });
     }
 });
 
 app.put("/update-doctor-full", async (req, res) => {
     try {
         await db.collection("doctors").updateOne(
-            { name: req.query.name },
+            { name: req.body.name },
             { $set: req.body }
         );
         res.send("Doctor updated successfully");
