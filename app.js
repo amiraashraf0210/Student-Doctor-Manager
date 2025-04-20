@@ -38,7 +38,7 @@ const Doctor = mongoose.model("Doctor", doctorSchema);
 app.get("/add-hardcoded-student", async (req, res) => {
     try {
         const hardcodedStudent = new Student({
-            name: "Ahmed",
+            name: "student",
             age: 20,
             level: "Junior",
             address: "123 Main St"
