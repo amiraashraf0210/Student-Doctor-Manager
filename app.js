@@ -76,14 +76,17 @@ app.delete("/delete-student", async (req, res) => {
 
 app.put("/update-student", async (req, res) => {
     try {
-        await db.collection("students").updateOne(
-            { name: req.query.name },
+        const result = await db.collection("students").updateOne(
+            { name: req.body.name },
             { $set: req.body }
         );
-        res.send("Student updated successfully");
+        if (result.matchedCount === 0) {
+            return res.status(404).json({ error: "Student not found" });
+        }
+        res.json({ message: "Student updated successfully" });
     } catch (error) {
         console.error("Error updating student:", error);
-        res.status(500).send("Could not update student");
+        res.status(500).json({ error: "Could not update student" });
     }
 });
 
