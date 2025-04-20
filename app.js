@@ -1,4 +1,5 @@
 // Basic imports
+require('dotenv').config();
 const express = require("express");
 const cors = require("cors");
 const { MongoClient } = require('mongodb');
@@ -9,7 +10,7 @@ app.use(cors());
 app.use(express.json());
 
 // Database setup
-const dbUrl = "mongodb+srv://amiraashraf0210:amiraashraf0210@cluster0.u3m2tfe.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+const dbUrl = process.env.MONGODB_URI || "mongodb+srv://amiraashraf0210:amiraashraf0210@cluster0.u3m2tfe.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
 const dbName = "students_db";
 const client = new MongoClient(dbUrl);
 
