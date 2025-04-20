@@ -358,12 +358,22 @@
         console.log("Fetching doctors...");
         const res = await fetch(`${api}/fetch-doctors`);
         console.log("Response received:", res);
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
         const data = await res.json();
         console.log("Doctors data:", data);
+        if (!Array.isArray(data)) {
+          throw new Error("Invalid data format received");
+        }
         updateDoctorList(data);
+        // Only show success message when manually refreshing
+        if (document.getElementById('doctorSearch').value !== '') {
+          showToast("Doctors fetched successfully!");
+        }
       } catch (error) {
         console.error("Error fetching doctors:", error);
-        showToast("Error fetching doctors", true);
+        showToast("Error fetching doctors: " + error.message, true);
       }
     }
 
@@ -535,7 +545,14 @@
 
     // Helper function to update doctor list
     function updateDoctorList(doctors) {
+      const doctorList = document.getElementById('doctorList');
       doctorList.innerHTML = "";
+
+      if (!doctors || doctors.length === 0) {
+        doctorList.innerHTML = '<li class="list-group-item text-center text-muted">No doctors found</li>';
+        return;
+      }
+
       doctors.forEach(d => {
         const li = document.createElement("li");
         li.className = "list-group-item d-flex justify-content-between align-items-center";
@@ -543,7 +560,7 @@
           <div>
             <strong>${d.name}</strong>
             <br>
-            <small class="text-muted">Phone: ${d.phone}</small>
+            <small class="text-muted">Age: ${d.age} | Phone: ${d.phone}</small>
           </div>
           <div class="action-buttons">
             <button class="btn btn-sm btn-warning" onclick="editDoctor('${d.name}')">
