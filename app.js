@@ -1,5 +1,3 @@
-// Basic imports
-require('dotenv').config();
 const express = require("express");
 const cors = require("cors");
 const { MongoClient } = require('mongodb');
@@ -11,12 +9,12 @@ app.use(cors());
 app.use(express.json());
 
 // Database setup
-const dbUrl = process.env.MONGODB_URI || "mongodb+srv://amiraashraf0210:amiraashraf0210@cluster0.u3m2tfe.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+const dbUrl = "mongodb+srv://amiraashraf0210:amiraashraf0210@cluster0.u3m2tfe.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
 const dbName = "students_db";
 const client = new MongoClient(dbUrl);
 
 // Connect to database
-let db;  
+let db;
 client.connect()
     .then(() => {
         console.log("Connected to database");
@@ -28,12 +26,12 @@ client.connect()
     });
 
 // Demo student
-app.get("/add-hardcoded-student", async (req, res) => {
+app.post("/add-hardcoded-student", async (req, res) => {
     try {
         const student = {
             name: "student",
             age: 20,
-            level: "Junior",
+            level: 1,
             address: "123 Main St"
         };
 
@@ -129,22 +127,17 @@ app.put("/update-student", async (req, res) => {
 });
 
 // Doctors APIs
-app.get("/add-doctor", async (req, res) => {
+app.post("/add-doctor", async (req, res) => {
     try {
-        const { name, age, phone } = req.query;
-        if (!name || !age || !phone) {
-            return res.status(400).json({ error: "All fields (name, age, phone) are required" });
-        }
+        const { name, age, phone } = req.body;
 
-        // Validate age
-        const ageNum = parseInt(age);
-        if (isNaN(ageNum) || ageNum < 0 || ageNum > 120) {
-            return res.status(400).json({ error: "Age must be a valid number between 0 and 120" });
+        if (!name || !age || !phone) {
+            return res.status(400).json({ error: "All fields are required" });
         }
 
         const doctor = {
             name,
-            age: ageNum,
+            age: parseInt(age),
             phone
         };
 

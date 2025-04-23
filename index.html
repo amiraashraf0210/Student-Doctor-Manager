@@ -484,7 +484,10 @@
     // Add Hardcoded Student
     async function addHardcodedStudent() {
       try {
-        const response = await fetch(`${api}/add-hardcoded-student`);
+        const response = await fetch(`${api}/add-hardcoded-student`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" }
+        });
         if (response.ok) {
           showToast("Hardcoded student added successfully!");
           fetchStudents();
@@ -501,10 +504,16 @@
     document.getElementById("doctorForm").addEventListener("submit", async (e) => {
       e.preventDefault();
       try {
-        const name = document.getElementById("docName").value;
-        const age = document.getElementById("docAge").value;
-        const phone = document.getElementById("docPhone").value;
-        const response = await fetch(`${api}/add-doctor?name=${encodeURIComponent(name)}&age=${age}&phone=${encodeURIComponent(phone)}`);
+        const doctor = {
+          name: document.getElementById("docName").value,
+          age: document.getElementById("docAge").value,
+          phone: document.getElementById("docPhone").value
+        };
+        const response = await fetch(`${api}/add-doctor`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(doctor)
+        });
         if (response.ok) {
           showToast("Doctor added successfully!");
           e.target.reset();
