@@ -739,16 +739,15 @@
 
     async function submitDoctorEdit() {
       try {
-        const updatedDoctor = {
-          oldName: currentEditName,
-          newName: document.getElementById('editDoctorName').value,
-          age: Number(document.getElementById('editDoctorAge').value),
-          phone: document.getElementById('editDoctorPhone').value
-        };
-        const response = await fetch(`${api}/update-doctor`, {
+        const oldName = currentEditName;
+        const newName = document.getElementById('editDoctorName').value;
+        const age = Number(document.getElementById('editDoctorAge').value);
+        const phone = document.getElementById('editDoctorPhone').value;
+
+        const response = await fetch(`${api}/update-doctor?oldName=${encodeURIComponent(oldName)}&newName=${encodeURIComponent(newName)}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(updatedDoctor)
+          body: JSON.stringify({ age, phone })
         });
         if (response.ok) {
           showToast("Doctor updated successfully!");

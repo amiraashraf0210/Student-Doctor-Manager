@@ -182,7 +182,9 @@ app.delete("/delete-doctor", async (req, res) => {
 
 app.put("/update-doctor", async (req, res) => {
     try {
-        const { oldName, newName, age, phone } = req.body;
+        const { oldName, newName } = req.query;
+        const { age, phone } = req.body;
+
         if (!oldName) {
             return res.status(400).json({ error: "Doctor's current name is required" });
         }
