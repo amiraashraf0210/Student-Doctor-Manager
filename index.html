@@ -740,7 +740,8 @@
     async function submitDoctorEdit() {
       try {
         const updatedDoctor = {
-          name: document.getElementById('editDoctorName').value,
+          oldName: currentEditName,
+          newName: document.getElementById('editDoctorName').value,
           age: Number(document.getElementById('editDoctorAge').value),
           phone: document.getElementById('editDoctorPhone').value
         };

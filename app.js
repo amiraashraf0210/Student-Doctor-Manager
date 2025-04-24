@@ -182,9 +182,9 @@ app.delete("/delete-doctor", async (req, res) => {
 
 app.put("/update-doctor", async (req, res) => {
     try {
-        const { name, age, phone } = req.body;
-        if (!name) {
-            return res.status(400).json({ error: "Doctor name is required" });
+        const { oldName, newName, age, phone } = req.body;
+        if (!oldName) {
+            return res.status(400).json({ error: "Doctor's current name is required" });
         }
 
         // Validate age if provided
@@ -192,15 +192,20 @@ app.put("/update-doctor", async (req, res) => {
             return res.status(400).json({ error: "Age must be a valid number between 0 and 120" });
         }
 
+        const updateData = {};
+        if (newName) updateData.name = newName;
+        if (age) updateData.age = age;
+        if (phone) updateData.phone = phone;
+
         const result = await db.collection("doctors").updateOne(
-            { name },
-            { $set: req.body }
+            { name: oldName },
+            { $set: updateData }
         );
 
         if (result.matchedCount === 0) {
             return res.status(404).json({ error: "Doctor not found" });
         }
-        res.status(200).json({ message: "Doctor updated successfully", doctor: req.body });
+        res.status(200).json({ message: "Doctor updated successfully", doctor: updateData });
     } catch (error) {
         console.error("Error updating doctor:", error);
         res.status(500).json({ error: "Could not update doctor", details: error.message });
